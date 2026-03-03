@@ -569,6 +569,12 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         }
       </div>
+      <div class="share-buttons">
+        <span class="share-label">Share:</span>
+        <button class="share-btn share-btn-twitter" data-activity="${name}" data-description="${details.description}" title="Share on X (Twitter)" aria-label="Share on X (Twitter)">𝕏</button>
+        <button class="share-btn share-btn-facebook" data-activity="${name}" title="Share on Facebook" aria-label="Share on Facebook">f</button>
+        <button class="share-btn share-btn-copy" data-activity="${name}" title="Copy share link" aria-label="Copy share link">🔗</button>
+      </div>
     `;
 
     // Add click handlers for delete buttons
@@ -586,6 +592,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Add click handlers for share buttons
+    activityCard.querySelectorAll(".share-btn").forEach((btn) => {
+      btn.addEventListener("click", handleShare);
+    });
 
     activitiesList.appendChild(activityCard);
   }
@@ -797,6 +808,33 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     );
+  }
+
+  // Handle social sharing
+  function handleShare(event) {
+    const btn = event.currentTarget;
+    const activityName = btn.dataset.activity;
+    const description = btn.dataset.description || "";
+    const shareUrl = `${window.location.origin}${window.location.pathname}`;
+    const shareText = `Check out "${activityName}" at Mergington High School! ${description}`;
+
+    if (btn.classList.contains("share-btn-twitter")) {
+      const twitterUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+      window.open(twitterUrl, "_blank", "noopener,noreferrer");
+    } else if (btn.classList.contains("share-btn-facebook")) {
+      const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`;
+      window.open(facebookUrl, "_blank", "noopener,noreferrer");
+    } else if (btn.classList.contains("share-btn-copy")) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
+          showMessage("Link copied to clipboard!", "success");
+        }).catch(() => {
+          showMessage("Failed to copy link.", "error");
+        });
+      } else {
+        showMessage(`Share this link: ${shareUrl}`, "info");
+      }
+    }
   }
 
   // Show message function
